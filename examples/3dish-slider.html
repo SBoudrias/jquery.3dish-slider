@@ -1,0 +1,74 @@
+<!DOCTYPE HTML>
+<html lang="en-US">
+<head>
+	<meta charset="UTF-8">
+	<title>3Dish Slider</title>
+	
+	<style type="text/css">
+		
+		/* Basic style needed */
+		#slideshow {
+			position: relative;
+			top: 200px;
+			width: 760px;
+			height: 360px;
+		}
+		#slideshow .slide {
+			position: absolute;
+		}
+		
+		/* optionnal Style */
+		#slideshow {
+			margin: 0 auto;
+		}
+		#slideshow .slide {
+			background: #fff;
+			border: 4px solid #ccc;
+			height: 150px;
+			width: 100px;
+		}
+		#slideshow img {
+			max-width: 100%;
+		}
+	</style>
+	
+</head>
+<body>
+	
+	<div id="slideshow">
+		<div class="slide">
+			Hello
+		</div>
+		<div class="slide">
+			Lorem
+		</div>
+		<div class="slide">
+			Ipsum
+		</div>
+		<div class="slide">
+			Slide 4
+		</div>
+		<div class="slide">
+			Slide 5
+		</div>
+		<div class="slide">
+			Slide 6
+		</div>
+	</div>
+	
+	
+	<script src="../libs/jquery/jquery.js"></script>
+	
+	<!-- This script is a dependencie -->
+	<script src="../libs/dependencies/jquery.transform2d.js"></script>
+	
+	<!-- Plugin script -->
+	<script src="../src/jquery.3dish-slider.js"></script>
+	<script type="text/javascript">
+		$('#slideshow').ThreeDish({
+			
+		});
+	</script>
+	
+</body>
+</html>
