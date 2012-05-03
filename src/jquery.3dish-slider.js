@@ -22,6 +22,7 @@
 			// Set vars
 			this.type     = type;
 			this.$element = $(element);
+			this.$slides = this.$element.find(this.opt.slideClass);
 			this.opt  = this.getOptions(options);
 			this.styles = [];
 			this.zIndex = [];
@@ -32,7 +33,6 @@
 			this.$visibleSlides = [];
 			
 			var self = this,
-				$slides = this.$element.find(this.opt.slideClass),
 				bottom  = 0,
 				left = 0,
 				i = 0;
@@ -71,10 +71,10 @@
 			
 			// ---
 			// Build elem collection
-			$slides.slice(this.opt.slideNbr).each(function () {
+			this.$slides.slice(this.opt.slideNbr).each(function () {
 				self.$hiddenSlides.push($(this));
 			});
-			$slides.slice(0, this.opt.slideNbr).each(function () {
+			this.$slides.slice(0, this.opt.slideNbr).each(function () {
 				self.$visibleSlides.push($(this));
 			});
 			
@@ -122,56 +122,11 @@
 			// ---
 			// Animate slider to advance
 			
-			// move active in place
-			$.each(this.$visibleSlides, function (i, $elem) {
-				var def = new $.Deferred();
-				state.push(def.promise());
-				
-				$elem.animate(self.styles[i], {
-						duration : self.opt.animationSpeed,
-						complete : function () {
-							def.resolve();
-						}
-					});
-			});
-			
-			// Fade the first slide
-			this.$disappearingSlide.animate(this.leavingStyle, {
-				duration : self.opt.animationSpeed,
-				complete : function () {
-					$(this).css(self.hiddenStyle);
-				}
-			});
-			
-			
-			// ---
-			// Fire callback
-			
-			$.when.apply(this, state)
-				.done(function () {
-					
-					// unlocked animation
-					self.animating = false;
-					
-					// apply z-index
-					$.each(self.$visibleSlides, function (i, $elem) {
-						$elem.css(self.zIndex[i]);
-					});
-					
-					// callbacks
-					
-					if ($.isFunction(self.opt.moveCallback)) {
-						self.opt.moveCallback();
-					}
-					if (typeof self.opt.moveEvent === "String") {
-						$(document).trigger(self.opt.moveEvent);
-						$(document).trigger(self.opt.moveEvent + ":next");
-					}
-				});
+			this.animate('next');
 			
 		},
 		
-		prev: function () {
+		prev: function ($newSlide) {
 			
 			if (this.animating) {
 				return;
@@ -185,7 +140,15 @@
 			// ---
 			// Prepare new slide and add it to active slides
 			
-			var $nextSlide = this.$hiddenSlides.pop();
+			var $nextSlide;
+			if ($newSlide) {
+				$nextSlide = $newSlide;
+				// this.$hiddenSlides.pop();
+				// @todo: remove slide from hidden collection
+			} else {
+				$nextSlide = this.$hiddenSlides.pop();
+			}
+			
 			this.$visibleSlides.unshift($nextSlide);
 			
 			$nextSlide.css(this.leavingStyle);
@@ -201,7 +164,18 @@
 			// ---
 			// Animate slider to advance
 			
-			// move active in place
+			this.animate('prev');
+			
+		},
+		
+		animate : function (dir) {
+			var self = this,
+				state = [];
+			
+			
+			// ---
+			// Move slide
+			
 			$.each(this.$visibleSlides, function (i, $elem) {
 				var def = new $.Deferred();
 				state.push(def.promise());
@@ -214,10 +188,20 @@
 				});
 			});
 			
-			// Fade the last slide
-			this.$disappearingSlide.animate(this.hiddenStyle, {
-				duration : self.opt.animationSpeed
-			});
+			if (dir === 'next') {
+				// Fade the first slide
+				this.$disappearingSlide.animate(this.leavingStyle, {
+					duration : self.opt.animationSpeed,
+					complete : function () {
+						$(this).css(self.hiddenStyle);
+					}
+				});
+			} else {
+				// Fade the last slide
+				this.$disappearingSlide.animate(this.hiddenStyle, {
+					duration : self.opt.animationSpeed
+				});
+			}
 			
 			
 			// ---
@@ -235,21 +219,55 @@
 					});
 					
 					// callbacks
-					
 					if ($.isFunction(self.opt.moveCallback)) {
-						self.opt.moveCallback();
+						self.opt.moveCallback(self.visibleSlides[0]);
 					}
 					if (typeof self.opt.moveEvent === "String") {
-						$(document).trigger(self.opt.moveEvent);
-						$(document).trigger(self.opt.moveEvent + ":prev");
+						this.$element.trigger(self.opt.moveEvent, self.visibleSlides[0]);
+						this.$element.trigger(self.opt.moveEvent + ":" + dir, self.visibleSlides[0]);
 					}
 				});
+		},
+		
+		goTo : function (index) {
+			
+			var $nextSlide = this.$slides.eq(index);
+			
+			if (!$nextSlide.length) {
+				return;
+			}
+			
+			var visiblesIndex = $.map(this.$visibleSlides, function ($elem) {
+				return $elem.index();
+			});
+			
+			if ($.inArray(index, visiblesIndex) >= 0) {
+				console.log('request is visible');
+				//this.animate('next');
+				// @todo: action is slide is visible
+			} else {
+				console.log('requested is not visible')
+				//this.animate('prev');
+			}
+			
+		},
+		
+		append : function ($elem) {
+			
+			var self = this;
+			
+			$elem.css(this.hiddenStyle);
+			
+			this.$element.append($elem);
+			
+			this.$hiddenSlides.push($elem);
+			
 		}
 		
 	};
 	
 	
-	$.fn.ThreeDish = function (option) {
+	$.fn.ThreeDish = function (option, args) {
 		return this.each(function () {
 			var $this   = $(this),
 				data    = $this.data('ThreeDish'),
@@ -259,7 +277,7 @@
 				$this.data('ThreeDish', (data = new ThreeDish(this, options)));
 			}
 			if (typeof option === 'string') {
-				data[option]();
+				data[option](args);
 			}
 		});
 	};
