@@ -22,8 +22,8 @@
 			// Set vars
 			this.type     = type;
 			this.$element = $(element);
-			this.$slides = this.$element.find(this.opt.slideClass);
 			this.opt  = this.getOptions(options);
+			this.$slides = this.$element.find(this.opt.slideClass);
 			this.styles = [];
 			this.zIndex = [];
 			this.animating = false;
@@ -94,7 +94,7 @@
 			return options;
 		},
 		
-		next: function () {
+		next: function (callback) {
 			
 			if (this.animating) {
 				return;
@@ -122,11 +122,11 @@
 			// ---
 			// Animate slider to advance
 			
-			this.animate('next');
+			this.animate('next', callback);
 			
 		},
 		
-		prev: function ($newSlide) {
+		prev: function (callback) {
 			
 			if (this.animating) {
 				return;
@@ -140,14 +140,7 @@
 			// ---
 			// Prepare new slide and add it to active slides
 			
-			var $nextSlide;
-			if ($newSlide) {
-				$nextSlide = $newSlide;
-				// this.$hiddenSlides.pop();
-				// @todo: remove slide from hidden collection
-			} else {
-				$nextSlide = this.$hiddenSlides.pop();
-			}
+			var $nextSlide = this.$hiddenSlides.pop();
 			
 			this.$visibleSlides.unshift($nextSlide);
 			
@@ -164,11 +157,11 @@
 			// ---
 			// Animate slider to advance
 			
-			this.animate('prev');
+			this.animate('prev', callback);
 			
 		},
 		
-		animate : function (dir) {
+		animate : function (dir, callback) {
 			var self = this,
 				state = [];
 			
@@ -220,34 +213,79 @@
 					
 					// callbacks
 					if ($.isFunction(self.opt.moveCallback)) {
-						self.opt.moveCallback(self.visibleSlides[0]);
+						self.opt.moveCallback(self.$visibleSlides[0]);
 					}
 					if (typeof self.opt.moveEvent === "String") {
-						this.$element.trigger(self.opt.moveEvent, self.visibleSlides[0]);
-						this.$element.trigger(self.opt.moveEvent + ":" + dir, self.visibleSlides[0]);
+						this.$element.trigger(self.opt.moveEvent, self.$visibleSlides[0]);
+						this.$element.trigger(self.opt.moveEvent + ":" + dir, self.$visibleSlides[0]);
+					}
+					if ($.isFunction(callback)) {
+						callback(self.$visibleSlides[0]);
 					}
 				});
 		},
 		
-		goTo : function (index) {
+		goTo : function (position) {
 			
-			var $nextSlide = this.$slides.eq(index);
+			if (this.animating) {
+				return;
+			}
+			
+			var self = this,
+				index = parseFloat(position),
+				$nextSlide = this.$slides.eq(index),
+				visiblesIndex,
+				nextSlideIndex,
+				i = 0,
+				loop;
 			
 			if (!$nextSlide.length) {
 				return;
 			}
 			
-			var visiblesIndex = $.map(this.$visibleSlides, function ($elem) {
+			visiblesIndex = $.map(this.$visibleSlides, function ($elem) {
 				return $elem.index();
 			});
 			
-			if ($.inArray(index, visiblesIndex) >= 0) {
-				console.log('request is visible');
-				//this.animate('next');
-				// @todo: action is slide is visible
+			nextSlideIndex = $.inArray(index, visiblesIndex);
+			
+			if (nextSlideIndex >= 0) {
+				
+				// If slide is visible
+				
+				if (nextSlideIndex === 0) {
+					return;
+				}
+				
+				(function loop() {
+					self.next(function () {
+						i += 1;
+						if (i < nextSlideIndex) {
+							loop();
+						}
+					});
+				}());
+				
 			} else {
-				console.log('requested is not visible')
-				//this.animate('prev');
+				// If side is not visible
+				this.animating = true;
+				
+				var newHiddenArray = [];
+				$.each(this.$hiddenSlides, function (index, $elem) {
+					if ($elem.get(0) !== $nextSlide.get(0)) {
+						newHiddenArray.push($elem);
+					}
+				});
+				this.$hiddenSlides = newHiddenArray;
+				
+				this.$disappearingSlide = this.$visibleSlides.pop();
+				this.$hiddenSlides.unshift(this.$disappearingSlide);
+				
+				this.$visibleSlides.unshift($nextSlide);
+				$nextSlide.css(this.leavingStyle);
+				
+				this.animate('prev');
+				
 			}
 			
 		},
@@ -259,7 +297,7 @@
 			$elem.css(this.hiddenStyle);
 			
 			this.$element.append($elem);
-			
+			this.$slides.add($elem);
 			this.$hiddenSlides.push($elem);
 			
 		}
