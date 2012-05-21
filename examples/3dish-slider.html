@@ -78,7 +78,9 @@
 	<script src="../src/jquery.3dish-slider.js"></script>
 	<script type="text/javascript">
 		$('#slideshow').ThreeDish({
-			
+			yStep: 0,
+			xStep: 60,
+			slideNbr: 3
 		});
 		$('.js-next').click(function () {
 			$('#slideshow').ThreeDish('next');

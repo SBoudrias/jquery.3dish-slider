@@ -45,12 +45,11 @@
 				var zAxe = 1 - (this.opt.zStep * i);
 				
 				this.styles[i] = {
-					display : "block",
 					opacity : 1,
 					transform : "scale(" + zAxe + ")" // @todo: calculate scaling
 				};
-				this.styles[i][this.opt.xOrigin] = (left   + this.opt.xStep * i) + 'px';
-				this.styles[i][this.opt.yOrigin] = (bottom + this.opt.yStep * i) + 'px';
+				this.styles[i][this.opt.xOrigin] = (left   + this.opt.xStep * zAxe * i) + 'px';
+				this.styles[i][this.opt.yOrigin] = (bottom + this.opt.yStep * zAxe * i) + 'px';
 				
 				this.zIndex[i] = {
 					zIndex: (this.opt.slideZIndex - i)
@@ -59,7 +58,7 @@
 			}
 			
 			this.hiddenStyle = this.styles.pop();
-			this.hiddenStyle = $.extend(this.hiddenStyle, {opacity: 0, transform: "scale(0)"}, this.zIndex.pop());
+			this.hiddenStyle = $.extend(this.hiddenStyle, {opacity: 0, transform: "scale(0.1)"}, this.zIndex.pop());
 			
 			this.leavingStyle = {
 				zIndex: this.opt.slideZIndex + 1,
@@ -99,6 +98,7 @@
 			if (this.animating) {
 				return;
 			}
+			
 			this.animating = true;
 			
 			var self = this,
@@ -136,7 +136,6 @@
 			var self = this,
 				state = [];
 			
-			
 			// ---
 			// Prepare new slide and add it to active slides
 			
@@ -164,7 +163,8 @@
 		animate : function (dir, callback) {
 			var self = this,
 				state = [];
-			
+				
+			console.log(this.$visibleSlides.length, this.$disappearingSlide.length, this.$hiddenSlides.length);
 			
 			// ---
 			// Move slide
@@ -202,7 +202,6 @@
 			
 			$.when.apply(this, state)
 				.done(function () {
-					
 					// unlocked animation
 					self.animating = false;
 					
@@ -215,9 +214,9 @@
 					if ($.isFunction(self.opt.moveCallback)) {
 						self.opt.moveCallback(self.$visibleSlides[0]);
 					}
-					if (typeof self.opt.moveEvent === "String") {
-						this.$element.trigger(self.opt.moveEvent, self.$visibleSlides[0]);
-						this.$element.trigger(self.opt.moveEvent + ":" + dir, self.$visibleSlides[0]);
+					if (typeof self.opt.moveEvent === "string") {
+						self.$element.trigger(self.opt.moveEvent, self.$visibleSlides[0]);
+						self.$element.trigger(self.opt.moveEvent + ":" + dir, self.$visibleSlides[0]);
 					}
 					if ($.isFunction(callback)) {
 						callback(self.$visibleSlides[0]);
@@ -330,10 +329,10 @@
 		animationSpeed : 500,
 		
 		slideClass : '.slide',
-		slideSize  : {
-			width  : '300px',
-			height : '100px'
-		},
+		//slideSize  : {
+		//	width  : '300px',
+		//	height : '100px'
+		//},
 		slideZIndex : 10000,
 		slideNbr : 4,
 		
