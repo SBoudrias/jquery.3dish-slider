@@ -27,7 +27,7 @@ $('.slider').ThreeDish();
 
 You can of course chain other jQuery function afterward and pass personnalized option to the plugins (those will be explain later).
 
-Initializing ThreeDish will only set up default style and create an instance of Threedish. It will not add any button; this is up to you using the methods below.
+Initializing ThreeDish will only set up default style and create an instance of Threedish. It will not add any button; this is up to you using the [methods below](https://github.com/SBoudrias/jquery.3dish-slider#methods).
 
 ### Methods
 
