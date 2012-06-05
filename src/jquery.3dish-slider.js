@@ -42,14 +42,15 @@
 			// Set defaults styles
 			for (; i < this.opt.slideNbr + 1; i += 1) {
 				
-				var zAxe = 1 - (this.opt.zStep * i);
+				var zAxe = 1 - (this.opt.zStep * i),
+					xAxe = (left   + this.opt.xStep * i) + 'px',
+					yAxe = (bottom + this.opt.yStep * i) + 'px';
+					
 				
 				this.styles[i] = {
 					opacity : 1,
-					transform : "scale(" + zAxe + ")" // @todo: calculate scaling
+					transform : "scale(" + zAxe + ") translate(" + xAxe + "," + yAxe + ") " // @todo: calculate scaling
 				};
-				this.styles[i][this.opt.xOrigin] = (left   + this.opt.xStep * zAxe * i) + 'px';
-				this.styles[i][this.opt.yOrigin] = (bottom + this.opt.yStep * zAxe * i) + 'px';
 				
 				this.zIndex[i] = {
 					zIndex: (this.opt.slideZIndex - i)
@@ -62,11 +63,9 @@
 			
 			this.leavingStyle = {
 				zIndex: this.opt.slideZIndex + 1,
-				transform: "scale(" + (1 + this.opt.zStep) + ")",
+				transform: "scale(" + (1 + this.opt.zStep) + ") translate(" + (-self.opt.xStep) + "px,0)",
 				opacity: 0
 			};
-			this.leavingStyle[this.opt.xOrigin] = "-" + self.opt.xStep + "px";
-			this.leavingStyle[this.opt.yOrigin] = "-" + self.opt.yStep + "px";
 			
 			// ---
 			// Build elem collection
