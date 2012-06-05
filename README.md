@@ -14,7 +14,6 @@ In your web page:
 <script src="jquery.js"></script>
 <script src="dist/jquery.3dish-slider.min.js"></script>
 ```
-_(Coming soon)_
 
 ## Documentation
 
