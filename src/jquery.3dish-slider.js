@@ -163,8 +163,6 @@
 		animate : function (dir, callback) {
 			var self = this,
 				state = [];
-				
-			console.log(this.$visibleSlides.length, this.$disappearingSlide.length, this.$hiddenSlides.length);
 			
 			// ---
 			// Move slide

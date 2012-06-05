@@ -1,6 +1,6 @@
 # 3dish  Slider
 
-Basic 3d effet slider
+Threedish is a basic 3d effet slider jQuery plugin. It use CSS 3 transform operation to scale down and up any kind of html content.
 
 ## Getting Started
 Download the [production version][min] or the [development version][max].
@@ -17,6 +17,57 @@ In your web page:
 _(Coming soon)_
 
 ## Documentation
+
+### Initialize
+To initialize Threedish, just call on any element.
+
+```javascript
+$('.slider').ThreeDish();
+```
+
+You can of course chain other jQuery function afterward and pass personnalized option to the plugins (those will be explain later).
+
+Initializing ThreeDish will only set up default style and create an instance of Threedish. It will not add any button; this is up to you using the methods below.
+
+### Methods
+
+You can call pretty basic method on a ThreeDish instance.
+
+####next
+
+```javascript
+$('.slider').ThreeDish('next');
+```
+
+Move the slides forward
+
+####prev
+
+```javascript
+$('.slider').ThreeDish('prev');
+```
+
+Move the slides backward
+
+####goTo
+
+```javascript
+$('.slider').ThreeDish('goTo', '.className');
+// the selector could be [name=myslide] or any valid jQuery selector
+```
+
+Move the slides to the first slide corresponding to the jQuery selector passed as argument.
+
+####append
+
+```javascript
+$('.slider').ThreeDish('append', $('<div/>'));
+```
+
+Append any jQuery element to the slider. Ideally, you'd have to give this new element the same class name as the other slides.
+
+### Options
+
 _(Coming soon)_
 
 ## Examples
